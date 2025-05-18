@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
   build:
@@ -23,11 +24,16 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Build Debug APK
+      - name: Build APK
         run: ./gradlew assembleDebug
 
-      - name: Find and copy APKs
+      - name: Copy APK to new folder
         run: |
           mkdir -p built-apks
-          find . -name "*.apk" -exec cp {} built-apks/ \;
-          ls -lh built-apks
+          cp app/build/outputs/apk/debug/*.apk built-apks/
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: debug-apk
+          path: built-apks/*.apk
