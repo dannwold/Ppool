@@ -27,8 +27,17 @@ jobs:
       - name: Build APK
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Show APK output directory
+        run: ls -R app/build/outputs/apk
+
+      - name: Upload Debug APK (exact path)
         uses: actions/upload-artifact@v4
         with:
           name: PocketPool-Debug-APK
-          path: app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload All APKs (fallback wildcard)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PocketPool-All-APKs
+          path: '**/*.apk'
