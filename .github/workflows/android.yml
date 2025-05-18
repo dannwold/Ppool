@@ -24,17 +24,20 @@ jobs:
       - name: Grant execute permission for Gradle
         run: chmod +x ./gradlew
 
+      - name: List available Gradle modules
+        run: ./gradlew projects
+
       - name: Build APK
-        run: ./gradlew :Ppool:assembleDebug --stacktrace
+        run: ./gradlew :app:assembleDebug --stacktrace
 
       - name: Show APK output directory
-        run: ls -R Ppool/build/outputs/apk || echo "APK directory not found."
+        run: ls -R app/build/outputs/apk || echo "APK directory not found."
 
-      - name: Upload Debug APK (exact path)
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: PocketPool-Debug-APK
-          path: Ppool/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/*.apk
 
       - name: Upload All APKs (fallback wildcard)
         uses: actions/upload-artifact@v4
