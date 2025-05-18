@@ -1,4 +1,4 @@
-name: Build Debug APK and Commit to Main
+name: Build Debug APK
 
 on:
   push:
@@ -23,10 +23,11 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      - name: Build APK
+      - name: Build Debug APK
         run: ./gradlew assembleDebug
 
-      - name: Copy APK to new folder
+      - name: Find and copy APKs
         run: |
           mkdir -p built-apks
-          cp app/build/outputs/apk/debug/app-debug.apk built-apks/
+          find . -name "*.apk" -exec cp {} built-apks/ \;
+          ls -lh built-apks
