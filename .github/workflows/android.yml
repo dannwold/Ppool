@@ -24,8 +24,11 @@ jobs:
       - name: Grant execute permission for Gradle
         run: chmod +x ./gradlew
 
-      - name: List available Gradle modules
-        run: ./gradlew projects
+      - name: Show Gradle Modules
+        run: ./gradlew projects --stacktrace
+
+      - name: Show Project Directory Structure
+        run: ls -R
 
       - name: Build APK
         run: ./gradlew :app:assembleDebug --stacktrace
