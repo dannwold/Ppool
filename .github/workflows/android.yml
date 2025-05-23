@@ -2,8 +2,7 @@ name: Build Debug APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
 
 jobs:
@@ -21,31 +20,21 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
-      - name: Grant execute permission for Gradle
-        run: chmod +x ./gradlew
+      - name: Grant permission to Gradle
+        run: chmod +x ./Ppool/gradlew
 
       - name: Build APK
-        run: ./gradlew assembleDebug --stacktrace
+        working-directory: Ppool
+        run: ./gradlew :app:assembleDebug --stacktrace
 
-      - name: Find APKs
-        run: |
-          find . -name "*.apk" || (echo "No APKs found!" && exit 1)
+      - name: Find APK
+        run: find Ppool/app/build/outputs/apk/debug -name "*.apk" || (echo "No APKs found!" && exit 1)
 
-      - name: Upload Debug APKs
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: PocketPool-Debug-APKs
-          path: '**/*.apk'
+          name: PocketPool-Debug-APK
+          path: Ppool/app/build/outputs/apk/debug/*.apk
 
       - name: Create Git Tag
         if: github.ref == 'refs/heads/main'
@@ -68,6 +57,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
         with:
-          files: '**/*.apk'
+          files: Ppool/app/build/outputs/apk/debug/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
