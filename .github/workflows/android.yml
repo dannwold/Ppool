@@ -21,6 +21,16 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
       - name: Grant execute permission for Gradle
         run: chmod +x ./gradlew
 
@@ -32,6 +42,10 @@ jobs:
 
       - name: Build APK
         run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Check if APK exists
+        run: |
+          ls app/build/outputs/apk/debug/*.apk || (echo "APK not found!" && exit 1)
 
       - name: Show APK output directory
         run: ls -R app/build/outputs/apk || echo "APK directory not found."
@@ -47,3 +61,20 @@ jobs:
         with:
           name: PocketPool-All-APKs
           path: '**/*.apk'
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "Debug Build - ${{ github.sha }}"
+          tag_name: "debug-${{ github.sha }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK to Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: app/build/outputs/apk/debug/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
